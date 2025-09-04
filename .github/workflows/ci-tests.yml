@@ -13,24 +13,24 @@ on:
 
 jobs:
   test:
-    # Each matrix entry (Python version) becomes its own job
-    name: Python ${{ matrix.python-version }} on ${{ runner.os }}
+    # Keep the job name simple; do not interpolate runner.os to avoid context issues
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false                 # don't cancel others if one version fails
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]  # versions required by the assignment
+        python-version: ["3.7", "3.8", "3.9", "3.10"]  # assignment requirement
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v4     # assignment asks for v4
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"                    # speeds up 'pip install' between runs
+          cache: "pip"                # cache pip to speed repeated installs
 
       - name: Show Python version
         run: python --version
