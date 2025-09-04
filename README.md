@@ -10,3 +10,4 @@ This repository is used for practicing Continuous Integration (CI) with **GitHub
 
 > Do not commit secrets to this repository.
 > Test-1
+> Test-2
