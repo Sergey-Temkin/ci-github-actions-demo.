@@ -1,6 +1,7 @@
 # .github/workflows/ci-tests.yml
-# Purpose: CI workflow that sets up Python 3.9 and runs unittest tests on push to main.
-name: CI - Python Tests (3.9)
+# Purpose: Run unit tests across multiple Python versions (matrix build).
+
+name: CI - Python Tests (Matrix)
 
 on:
   push:
@@ -12,29 +13,33 @@ on:
 
 jobs:
   test:
-    name: Run unit tests (Python 3.9)
+    # Each matrix entry (Python version) becomes its own job
+    name: Python ${{ matrix.python-version }} on ${{ runner.os }}
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false                 # don't cancel others if one version fails
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]  # versions required by the assignment
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3  # fetch the repo contents
+        uses: actions/checkout@v3
 
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4     # assignment asks for v4
         with:
-          python-version: "3.9"  # matches the assignment requirement
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"                    # speeds up 'pip install' between runs
 
       - name: Show Python version
         run: python --version
 
       - name: Install dependencies
-        # If requirements.txt is empty, this will quickly no-op
+        # unittest is built-in; if you add packages later, keep them in requirements.txt
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run tests
-        # Use unittest (built into Python)
-        run: |
-          python -m unittest discover -v
-
+      - name: Run unit tests
+        run: python -m unittest discover -v
