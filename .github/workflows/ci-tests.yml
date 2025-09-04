@@ -1,5 +1,6 @@
 # .github/workflows/ci-tests.yml
-# Purpose: Run unit tests across multiple Python versions (matrix build).
+# Purpose: Run unit tests across multiple Python versions (matrix build),
+#          using ubuntu-22.04 only for Python 3.7 (since 3.7 isn't available on 24.04).
 
 name: CI - Python Tests (Matrix)
 
@@ -13,14 +14,21 @@ on:
 
 jobs:
   test:
-    # Keep the job name simple; do not interpolate runner.os to avoid context issues
     name: Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+    # We pick the OS per matrix entry (3.7 -> 22.04, others -> latest/24.04)
+    runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: false                 # don't cancel others if one version fails
+      fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]  # assignment requirement
+        # Default set: run 3.8/3.9/3.10 on ubuntu-latest (24.04)
+        python-version: ["3.8", "3.9", "3.10"]
+        os: [ubuntu-latest]
+
+        # Add a special case for Python 3.7 on ubuntu-22.04
+        include:
+          - python-version: "3.7"
+            os: ubuntu-22.04
 
     steps:
       - name: Check out repository
@@ -30,7 +38,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"                # cache pip to speed repeated installs
+          cache: "pip"  # speeds up pip installs between runs
 
       - name: Show Python version
         run: python --version
