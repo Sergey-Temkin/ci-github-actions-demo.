@@ -1,0 +1,25 @@
+# .github/workflows/ci-schedule.yml
+# Purpose: Run a scheduled job every day at midnight UTC and print a message.
+
+name: CI - Daily Scheduled Job
+
+on:
+  schedule:
+    # Runs every day at 00:00 UTC (cron: minute hour day month weekday)
+    - cron: "0 0 * * *"
+  # Include manual trigger so you can test it immediately from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  daily-message:
+    name: Daily message
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3  # fetches your repo contents (good habit, even if we only echo)
+
+      - name: Print scheduled message
+        run: |
+          echo "Scheduled build completed successfully!"
+          echo "UTC now: $(date -u +"%Y-%m-%d %H:%M:%S")"
